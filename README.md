@@ -96,7 +96,7 @@ and is the source of every number in the paper.
 ## Citing
 
 If you use this software, please cite both the paper and this repository (see `CITATION.cff`).
-A Zenodo DOI will be added here on first release.
+Archived on Zenodo: https://doi.org/10.5281/zenodo.23841471 (v1.1.0, used for the paper; v1.0: 10.5281/zenodo.23840638).
 
 ## License
 
