@@ -141,6 +141,9 @@ def shap_drivers(i, k=3):
 global_rank = SV[DRIVER_FEATS].abs().mean().sort_values(ascending=False)
 GLOBAL3 = list(global_rank.head(3).index)
 R["global_shap_top3"] = GLOBAL3
+# second fixed-list baseline: top-3 drivers by global permutation importance (Figure 4)
+PERM3 = list(gimp.reindex(DRIVER_FEATS).sort_values(ascending=False).head(3).index)
+R["global_perm_top3"] = PERM3
 
 # ---- 6.4 faithfulness: LIME local fit and SHAP-LIME agreement (40 highest-risk sprints) ----
 top40 = list(Xte.index[np.argsort(-proba)[:40]])
@@ -170,7 +173,7 @@ REASON_FEATS = {
     "Quality / tech debt": ["technical_debt_index", "test_automation_coverage", "code_review_compliance", "production_incidents"]}
 K = 3
 nD = len(DRIVER_FEATS)
-per = {r: {"n": 0, "shap": 0, "global": 0, "random": 0.0} for r in REASON_FEATS}
+per = {r: {"n": 0, "shap": 0, "global": 0, "perm": 0, "random": 0.0} for r in REASON_FEATS}
 for i in failed_idx:
     r = reason[i]
     if r not in REASON_FEATS:
@@ -179,15 +182,17 @@ for i in failed_idx:
     per[r]["n"] += 1
     per[r]["shap"] += int(len(set(shap_drivers(i, K).index) & tgt) > 0)
     per[r]["global"] += int(len(set(GLOBAL3) & tgt) > 0)
+    per[r]["perm"] += int(len(set(PERM3) & tgt) > 0)
     per[r]["random"] += 1 - comb(nD - len(tgt), K) / comb(nD, K)
 N = sum(v["n"] for v in per.values())
 R["reco_relevance"] = {
     "k": K, "n_failed_eval": N,
     "overall": {"shap": round(sum(v["shap"] for v in per.values()) / N, 3),
                 "global": round(sum(v["global"] for v in per.values()) / N, 3),
+                "perm": round(sum(v["perm"] for v in per.values()) / N, 3),
                 "random": round(sum(v["random"] for v in per.values()) / N, 3)},
     "per_reason": {r: {"n": v["n"], "shap": round(v["shap"] / v["n"], 3), "global": round(v["global"] / v["n"], 3),
-                       "random": round(v["random"] / v["n"], 3)} for r, v in per.items() if v["n"]}}
+                       "perm": round(v["perm"] / v["n"], 3), "random": round(v["random"] / v["n"], 3)} for r, v in per.items() if v["n"]}}
 minor = [r for r in REASON_FEATS if not (set(GLOBAL3) & set(REASON_FEATS[r]))]
 if minor:
     nm = sum(per[r]["n"] for r in minor)
@@ -237,13 +242,14 @@ safe = Xtr[ytr == 0][DRIVER_FEATS].median()
 def what_if(k, mode):
     Xs = Xte.loc[flagged].copy()
     for i in Xs.index:
-        feats = list(shap_drivers(i, k).index) if mode == "shap" else GLOBAL3[:k]
+        feats = list(shap_drivers(i, k).index) if mode == "shap" else (GLOBAL3[:k] if mode == "global" else PERM3[:k])
         for f in feats:
             Xs.loc[i, f] = Xs.loc[i, f] + 0.7 * (safe[f] - Xs.loc[i, f])
     return round(float((rf.predict_proba(Xs)[:, 1] < thr).mean()), 3)
 R["ablation"] = {"flagged": len(flagged), "prediction_only": 0.0,
                  "shap_top1": what_if(1, "shap"), "shap_top2": what_if(2, "shap"),
-                 "global_top1": what_if(1, "global"), "global_top2": what_if(2, "global")}
+                 "global_top1": what_if(1, "global"), "global_top2": what_if(2, "global"),
+                 "perm_top1": what_if(1, "perm"), "perm_top2": what_if(2, "perm")}
 
 with open(os.path.join(OUT, "results.json"), "w") as f:
     json.dump(R, f, indent=1)
@@ -264,14 +270,17 @@ fig = plt.figure(figsize=(4.6, 4.2)); plt.scatter(rte, rp, s=8, alpha=0.35, colo
 plt.plot(lim, lim, "r--", lw=1); plt.xlabel("actual cycle time (days)"); plt.ylabel("predicted"); plt.title(f"Cycle-time regression (R2={R['reg']['R2']})"); save(fig, "cycle_time_regression.png")
 A = R["ablation"]
 fig, ax = plt.subplots(figsize=(5.2, 3.6)); xs = np.arange(2); w = 0.36
-ax.bar(xs - w / 2, [A["shap_top1"], A["shap_top2"]], w, color=NAVY, label="Per-sprint SHAP drivers")
-ax.bar(xs + w / 2, [A["global_top1"], A["global_top2"]], w, color=GRAY, label="Same global top drivers")
+w = 0.27
+ax.bar(xs - w, [A["shap_top1"], A["shap_top2"]], w, color=NAVY, label="Per-sprint SHAP drivers")
+ax.bar(xs, [A["global_top1"], A["global_top2"]], w, color=STEEL, label="Fixed list (mean |SHAP|)")
+ax.bar(xs + w, [A["perm_top1"], A["perm_top2"]], w, color=GRAY, label="Fixed list (permutation)")
 ax.set_xticks(xs); ax.set_xticklabels(["top-1 adjusted", "top-2 adjusted"]); ax.set_ylabel("share re-scored below 0.5")
 ax.set_title("What-if sensitivity of the decision layer"); ax.legend(fontsize=8); save(fig, "ablation.png")
 pr = R["reco_relevance"]["per_reason"]; names = list(pr.keys())[::-1]
-fig, ax = plt.subplots(figsize=(6.4, 3.8)); yy = np.arange(len(names)); h = 0.38
-ax.barh(yy + h / 2, [pr[n]["shap"] for n in names], h, color=NAVY, label="Per-sprint SHAP top-3")
-ax.barh(yy - h / 2, [pr[n]["global"] for n in names], h, color=GRAY, label="Same global top-3 for all")
+fig, ax = plt.subplots(figsize=(6.4, 4.2)); yy = np.arange(len(names)); h = 0.27
+ax.barh(yy + h, [pr[n]["shap"] for n in names], h, color=NAVY, label="Per-sprint SHAP top-3")
+ax.barh(yy, [pr[n]["global"] for n in names], h, color=STEEL, label="Fixed top-3 (mean |SHAP|)")
+ax.barh(yy - h, [pr[n]["perm"] for n in names], h, color=GRAY, label="Fixed top-3 (permutation)")
 ax.set_yticks(yy); ax.set_yticklabels([f"{n} (n={pr[n]['n']})" for n in names], fontsize=8); ax.set_xlim(0, 1.05)
 ax.set_xlabel("share of failed sprints whose top-3 includes the recorded cause"); ax.legend(fontsize=8, loc="lower right")
 ax.set_title("Recommendations vs recorded failure cause"); save(fig, "recommendation_relevance.png")
