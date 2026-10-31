@@ -1,0 +1,125 @@
+{
+ "n": 15000,
+ "fail_rate": 0.559,
+ "n_features": 38,
+ "clf": {
+  "RandomForest": {
+   "precision": 0.738,
+   "recall": 0.775,
+   "f1": 0.756,
+   "roc_auc": 0.787
+  },
+  "GradientBoosting": {
+   "precision": 0.741,
+   "recall": 0.768,
+   "f1": 0.754,
+   "roc_auc": 0.79
+  }
+ },
+ "h3": {
+  "multi_f1_mean": 0.755,
+  "multi_f1_sd": 0.011,
+  "single_f1_mean": 0.695,
+  "single_f1_sd": 0.008,
+  "wilcoxon_p": 0.00195
+ },
+ "reg": {
+  "target": "median_cycle_time_days",
+  "MAE": 0.96,
+  "RMSE": 1.2,
+  "R2": 0.601
+ },
+ "top_features": [
+  [
+   "scope_added_ratio",
+   0.0293
+  ],
+  [
+   "unplanned_work_ratio",
+   0.0219
+  ],
+  [
+   "dependency_count",
+   0.0157
+  ],
+  [
+   "technical_debt_index",
+   0.0093
+  ],
+  [
+   "team_stability_index",
+   0.0085
+  ],
+  [
+   "test_automation_coverage",
+   0.0055
+  ],
+  [
+   "historical_velocity_cv",
+   0.0054
+  ],
+  [
+   "production_incidents",
+   0.0051
+  ]
+ ],
+ "faith": {
+  "fidelity_mean": 0.91,
+  "fidelity_min": 0.729,
+  "fidelity_max": 0.994,
+  "agreement_mean": 0.696
+ },
+ "reco_relevance": {
+  "k": 3,
+  "overall": 0.883,
+  "n_failed_eval": 2098,
+  "per_reason": {
+   "Unplanned work": 0.865,
+   "Scope volatility": 0.956,
+   "Dependency delays": 0.83,
+   "Team instability": 0.97,
+   "Planning / clarity": 0.684,
+   "Quality / tech debt": 1.0
+  }
+ },
+ "example": {
+  "reason": "Unplanned work",
+  "p_risk": 0.98,
+  "recs": [
+   {
+    "driver": "scope_added_ratio",
+    "pmbok": "Scope",
+    "action": "Freeze scope; route new requests through change control.",
+    "priority": "High",
+    "contribution": 0.032
+   },
+   {
+    "driver": "unplanned_work_ratio",
+    "pmbok": "Risk, Scope",
+    "action": "Protect capacity; triage and defer non-critical intake.",
+    "priority": "High",
+    "contribution": 0.02
+   },
+   {
+    "driver": "requirements_clarity_score",
+    "pmbok": "Scope",
+    "action": "Clarify acceptance criteria before commitment.",
+    "priority": "Medium",
+    "contribution": 0.014
+   },
+   {
+    "driver": "technical_debt_index",
+    "pmbok": "Quality",
+    "action": "Allocate refactoring capacity; set a tech-debt budget.",
+    "priority": "Medium",
+    "contribution": 0.013
+   }
+  ]
+ },
+ "ablation": {
+  "flagged": 2215,
+  "prediction_only": 0.0,
+  "plus_top1": 0.183,
+  "plus_top2": 0.308
+ }
+}

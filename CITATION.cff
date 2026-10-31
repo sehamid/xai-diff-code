@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "XAI-DIF: Explainable AI-Driven Decision Intelligence Framework for Software Project Management"
+type: software
+authors:
+  - family-names: Qureshi
+    given-names: Muhammad Hamid
+    email: hamidqureshi16@gmail.com
+    affiliation: "Superior University, Lahore, Pakistan"
+  - family-names: Nasim
+    given-names: Muhammad Fawad
+    affiliation: "Superior University, Lahore, Pakistan"
+version: 1.0.0
+date-released: 2026-10-31
+license: MIT
+repository-code: "https://github.com/sehamid/xai-diff-code"
+# doi: "10.5281/zenodo.XXXXXXX"                                    # <-- fill in after Zenodo mints it
