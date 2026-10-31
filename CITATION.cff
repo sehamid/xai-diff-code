@@ -10,7 +10,7 @@ authors:
   - family-names: Nasim
     given-names: Muhammad Fawad
     affiliation: "Superior University, Lahore, Pakistan"
-version: 1.0.0
+version: 1.1.0
 date-released: 2026-10-31
 license: MIT
 repository-code: "https://github.com/sehamid/xai-diff-code"

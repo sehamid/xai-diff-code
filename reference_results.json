@@ -14,14 +14,34 @@
    "recall": 0.768,
    "f1": 0.754,
    "roc_auc": 0.79
+  },
+  "XGBoost": {
+   "precision": 0.741,
+   "recall": 0.761,
+   "f1": 0.751,
+   "roc_auc": 0.789
   }
+ },
+ "confusion": {
+  "tn": 1076,
+  "fp": 576,
+  "fn": 473,
+  "tp": 1625,
+  "predicted_failed": 2201,
+  "actual_failed": 2098
  },
  "h3": {
   "multi_f1_mean": 0.755,
   "multi_f1_sd": 0.011,
   "single_f1_mean": 0.695,
   "single_f1_sd": 0.008,
-  "wilcoxon_p": 0.00195
+  "wilcoxon_p": 0.00195,
+  "cliffs_delta": 1.0,
+  "paired_diff_mean": 0.0596,
+  "paired_diff_ci95": [
+   0.0515,
+   0.0683
+  ]
  },
  "reg": {
   "target": "median_cycle_time_days",
@@ -63,23 +83,87 @@
    0.0051
   ]
  ],
+ "shap_rows_explained": 2674,
+ "global_shap_top3": [
+  "scope_added_ratio",
+  "team_stability_index",
+  "dependency_count"
+ ],
+ "global_perm_top3": [
+  "scope_added_ratio",
+  "unplanned_work_ratio",
+  "dependency_count"
+ ],
  "faith": {
-  "fidelity_mean": 0.91,
-  "fidelity_min": 0.729,
-  "fidelity_max": 0.994,
-  "agreement_mean": 0.696
+  "lime_r2_mean": 0.422,
+  "lime_r2_min": 0.255,
+  "lime_r2_max": 0.58,
+  "shap_lime_spearman_mean": 0.839,
+  "shap_lime_spearman_sd": 0.049,
+  "n": 40
  },
  "reco_relevance": {
   "k": 3,
-  "overall": 0.883,
   "n_failed_eval": 2098,
+  "overall": {
+   "shap": 0.82,
+   "global": 0.638,
+   "perm": 0.91,
+   "random": 0.31
+  },
   "per_reason": {
-   "Unplanned work": 0.865,
-   "Scope volatility": 0.956,
-   "Dependency delays": 0.83,
-   "Team instability": 0.97,
-   "Planning / clarity": 0.684,
-   "Quality / tech debt": 1.0
+   "Unplanned work": {
+    "n": 672,
+    "shap": 0.723,
+    "global": 0.0,
+    "perm": 1.0,
+    "random": 0.239
+   },
+   "Scope volatility": {
+    "n": 660,
+    "shap": 0.933,
+    "global": 1.0,
+    "perm": 1.0,
+    "random": 0.343
+   },
+   "Dependency delays": {
+    "n": 578,
+    "shap": 0.777,
+    "global": 1.0,
+    "perm": 1.0,
+    "random": 0.343
+   },
+   "Team instability": {
+    "n": 101,
+    "shap": 0.98,
+    "global": 1.0,
+    "perm": 0.0,
+    "random": 0.343
+   },
+   "Planning / clarity": {
+    "n": 79,
+    "shap": 0.797,
+    "global": 0.0,
+    "perm": 0.0,
+    "random": 0.343
+   },
+   "Quality / tech debt": {
+    "n": 8,
+    "shap": 1.0,
+    "global": 0.0,
+    "perm": 0.0,
+    "random": 0.437
+   }
+  },
+  "causes_outside_global_top3": {
+   "causes": [
+    "Unplanned work",
+    "Planning / clarity",
+    "Quality / tech debt"
+   ],
+   "n": 759,
+   "shap": 0.734,
+   "global": 0.0
   }
  },
  "example": {
@@ -87,39 +171,43 @@
   "p_risk": 0.98,
   "recs": [
    {
+    "driver": "test_automation_coverage",
+    "pmbok": "Quality",
+    "action": "Invest in automated regression coverage.",
+    "priority": "High",
+    "shap": 0.053
+   },
+   {
+    "driver": "team_stability_index",
+    "pmbok": "Resource",
+    "action": "Reduce churn; protect the core team for the sprint.",
+    "priority": "High",
+    "shap": 0.049
+   },
+   {
     "driver": "scope_added_ratio",
     "pmbok": "Scope",
     "action": "Freeze scope; route new requests through change control.",
     "priority": "High",
-    "contribution": 0.032
-   },
-   {
-    "driver": "unplanned_work_ratio",
-    "pmbok": "Risk, Scope",
-    "action": "Protect capacity; triage and defer non-critical intake.",
-    "priority": "High",
-    "contribution": 0.02
-   },
-   {
-    "driver": "requirements_clarity_score",
-    "pmbok": "Scope",
-    "action": "Clarify acceptance criteria before commitment.",
-    "priority": "Medium",
-    "contribution": 0.014
+    "shap": 0.047
    },
    {
     "driver": "technical_debt_index",
     "pmbok": "Quality",
     "action": "Allocate refactoring capacity; set a tech-debt budget.",
-    "priority": "Medium",
-    "contribution": 0.013
+    "priority": "High",
+    "shap": 0.036
    }
   ]
  },
  "ablation": {
-  "flagged": 2215,
+  "flagged": 2201,
   "prediction_only": 0.0,
-  "plus_top1": 0.183,
-  "plus_top2": 0.308
+  "shap_top1": 0.191,
+  "shap_top2": 0.333,
+  "global_top1": 0.081,
+  "global_top2": 0.134,
+  "perm_top1": 0.081,
+  "perm_top2": 0.141
  }
 }
