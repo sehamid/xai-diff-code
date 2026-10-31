@@ -277,12 +277,13 @@ ax.bar(xs + w, [A["perm_top1"], A["perm_top2"]], w, color=GRAY, label="Fixed lis
 ax.set_xticks(xs); ax.set_xticklabels(["top-1 adjusted", "top-2 adjusted"]); ax.set_ylabel("share re-scored below 0.5")
 ax.set_title("What-if sensitivity of the decision layer"); ax.legend(fontsize=8); save(fig, "ablation.png")
 pr = R["reco_relevance"]["per_reason"]; names = list(pr.keys())[::-1]
-fig, ax = plt.subplots(figsize=(6.4, 4.2)); yy = np.arange(len(names)); h = 0.27
+fig, ax = plt.subplots(figsize=(6.4, 4.6)); yy = np.arange(len(names)); h = 0.27
 ax.barh(yy + h, [pr[n]["shap"] for n in names], h, color=NAVY, label="Per-sprint SHAP top-3")
 ax.barh(yy, [pr[n]["global"] for n in names], h, color=STEEL, label="Fixed top-3 (mean |SHAP|)")
 ax.barh(yy - h, [pr[n]["perm"] for n in names], h, color=GRAY, label="Fixed top-3 (permutation)")
 ax.set_yticks(yy); ax.set_yticklabels([f"{n} (n={pr[n]['n']})" for n in names], fontsize=8); ax.set_xlim(0, 1.05)
-ax.set_xlabel("share of failed sprints whose top-3 includes the recorded cause"); ax.legend(fontsize=8, loc="lower right")
+ax.set_xlabel("share of failed sprints whose top-3 includes the recorded cause")
+ax.legend(fontsize=8, loc="upper center", bbox_to_anchor=(0.5, -0.16), ncol=3, frameon=False)
 ax.set_title("Recommendations vs recorded failure cause"); save(fig, "recommendation_relevance.png")
 ex_d = pd.Series({d["driver"]: d["shap"] for d in R["example"]["recs"]})
 fig, ax = plt.subplots(figsize=(6.4, 2.6))
