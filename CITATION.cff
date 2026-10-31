@@ -14,4 +14,4 @@ version: 1.0.0
 date-released: 2026-10-31
 license: MIT
 repository-code: "https://github.com/sehamid/xai-diff-code"
-# doi: "10.5281/zenodo.XXXXXXX"                                    # <-- fill in after Zenodo mints it
+doi: "10.5281/zenodo.23840638"
